@@ -1,13 +1,12 @@
 /**
- *
  * Copyright (C) 2014-2016 the original author or authors.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,14 +15,12 @@
  */
 package com.circulosiete.metrics.health;
 
+import com.circulosiete.metrics.health.hystrix.TestQueryExecutorCommand;
 import com.codahale.metrics.health.HealthCheck;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 
 import static com.codahale.metrics.health.HealthCheck.Result.healthy;
-import static com.codahale.metrics.health.HealthCheck.Result.unhealthy;
 
 /**
  * Created by domix on 1/19/17.
@@ -51,25 +48,7 @@ public class DataSourceHealthCheck extends HealthCheck {
   }
 
   private Result doDataSourceHealthCheck() {
-
-    try {
-      Connection con = null;
-      PreparedStatement pstmt;
-      try {
-        con = dataSource.getConnection();
-        con.setAutoCommit(false);
-        pstmt = con.prepareStatement(validationQuery);
-        pstmt.executeQuery();
-
-        pstmt.close();
-
-      } finally {
-        if (con != null) con.close();
-      }
-
-      return healthy();
-    } catch (Exception ex) {
-      return unhealthy(ex.getMessage());
-    }
+    return new TestQueryExecutorCommand(dataSource, validationQuery, "chido")
+      .execute();
   }
 }

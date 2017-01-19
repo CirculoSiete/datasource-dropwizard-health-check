@@ -12,9 +12,9 @@ gradle-app.setting
 
 # # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
 # gradle/wrapper/gradle-wrapper.properties
-datasource-dropwizard-health-check.iml
-datasource-dropwizard-health-check.ipr
-datasource-dropwizard-health-check.iws
+*.iml
+*.ipr
+*.iws
 .classpath
 .project
 .settings
