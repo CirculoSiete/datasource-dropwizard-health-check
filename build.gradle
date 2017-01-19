@@ -97,13 +97,13 @@ publishing {
         def root = asNode()
         root.appendNode('name', project.name)
         root.appendNode('description', project.description)
-        root.appendNode('url', 'https://github.com/CirculoSiete/datasource-dropwizard-health-check')
+        root.appendNode('url', 'https://github.com/CirculoSiete/datasource-metrics-health-check')
         root.appendNode('inceptionYear', '2017')
 
         def scm = root.appendNode('scm')
-        scm.appendNode('url', 'https://github.com/CirculoSiete/datasource-dropwizard-health-check')
-        scm.appendNode('connection', 'scm:https://domix@github.com/CirculoSiete/datasource-dropwizard-health-check.git')
-        scm.appendNode('developerConnection', 'scm:git@github.com:CirculoSiete/datasource-dropwizard-health-check.git')
+        scm.appendNode('url', 'https://github.com/CirculoSiete/datasource-metrics-health-check')
+        scm.appendNode('connection', 'scm:https://domix@github.com/CirculoSiete/datasource-metrics-health-check.git')
+        scm.appendNode('developerConnection', 'scm:git@github.com:CirculoSiete/datasource-metrics-health-check.git')
 
         def license = root.appendNode('licenses').appendNode('license')
         license.appendNode('name', 'The Apache Software License, Version 2.0')
@@ -132,11 +132,11 @@ bintray {
     userOrg = 'circulosiete'
     name = project.name
     desc = project.description
-    websiteUrl = 'https://github.com/CirculoSiete/datasource-dropwizard-health-check'
-    issueTrackerUrl = 'https://github.com/CirculoSiete/datasource-dropwizard-health-check/issues'
-    vcsUrl = 'https://github.com/CirculoSiete/datasource-dropwizard-health-check.git'
+    websiteUrl = 'https://github.com/CirculoSiete/datasource-metrics-health-check'
+    issueTrackerUrl = 'https://github.com/CirculoSiete/datasource-metrics-health-check/issues'
+    vcsUrl = 'https://github.com/CirculoSiete/datasource-metrics-health-check.git'
     licenses = ['Apache-2.0']
-    labels = ['metrics', 'metrics-healthchecks', 'dropwizard']
+    labels = ['metrics', 'metrics-healthchecks', 'dropwizard', 'healthchecks']
     publicDownloadNumbers = true
     attributes = [:]
     //Optional version descriptor
