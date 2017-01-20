@@ -56,7 +56,7 @@ public class TestQueryExecutorCommand extends HystrixCommand<HealthCheck.Result>
       if (con != null) con.close();
     }
 
-    return healthy();
+    return healthy("DB-OK");
   }
 
   @Override
