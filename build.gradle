@@ -49,6 +49,7 @@ repositories {
 dependencies {
   compile 'io.dropwizard.metrics:metrics-healthchecks:3.1.2'
   compile 'com.netflix.hystrix:hystrix-core:1.5.9'
+  compile 'org.projectlombok:lombok:1.16.12'
 
   testCompile 'junit:junit:4.12'
 }
