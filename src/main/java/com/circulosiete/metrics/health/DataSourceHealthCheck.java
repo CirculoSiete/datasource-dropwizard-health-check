@@ -49,7 +49,11 @@ public class DataSourceHealthCheck extends HealthCheck {
   }
 
   private Result doDataSourceHealthCheck() {
-    return new TestQueryExecutorCommand(dataSource, validationQuery, "DataSourceHealthCheck")
-      .execute();
+    return
+      new TestQueryExecutorCommand(
+        dataSource,
+        validationQuery,
+        "DataSourceHealthCheck")
+        .execute();
   }
 }
