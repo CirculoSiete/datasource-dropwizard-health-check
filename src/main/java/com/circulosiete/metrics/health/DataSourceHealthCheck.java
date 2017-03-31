@@ -22,6 +22,7 @@ import com.codahale.metrics.health.HealthCheck;
 import javax.sql.DataSource;
 
 import static com.codahale.metrics.health.HealthCheck.Result.healthy;
+import static java.util.Optional.ofNullable;
 
 /**
  * Created by domix on 1/19/17.
@@ -38,17 +39,12 @@ public class DataSourceHealthCheck extends HealthCheck {
 
   @Override
   protected Result check() throws Exception {
-    Result result;
-    if (this.dataSource == null) {
-      result = healthy("database unknown");
-    } else {
-      result = doDataSourceHealthCheck();
-    }
-
-    return result;
+    return ofNullable(dataSource)
+      .map(this::doDataSourceHealthCheck)
+      .orElse(healthy("database unknown"));
   }
 
-  private Result doDataSourceHealthCheck() {
+  private Result doDataSourceHealthCheck(DataSource dataSource) {
     return
       new TestQueryExecutorCommand(
         dataSource,
