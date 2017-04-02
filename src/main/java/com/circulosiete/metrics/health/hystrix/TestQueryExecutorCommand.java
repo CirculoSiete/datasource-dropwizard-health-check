@@ -27,6 +27,7 @@ import java.sql.PreparedStatement;
 
 import static com.codahale.metrics.health.HealthCheck.Result.healthy;
 import static java.util.Optional.ofNullable;
+import static org.apache.commons.lang.exception.ExceptionUtils.getCause;
 
 /**
  * Created by domix on 1/19/17.
@@ -67,7 +68,7 @@ public class TestQueryExecutorCommand extends HystrixCommand<HealthCheck.Result>
   @Override
   protected HealthCheck.Result getFallback() {
     log.debug("DB is unhealthy");
-    return ofNullable(getExecutionException())
+    return ofNullable(getCause(getExecutionException()))
       .map(HealthCheck.Result::unhealthy)
       .orElse(HealthCheck.Result.unhealthy("Fail"));
   }
