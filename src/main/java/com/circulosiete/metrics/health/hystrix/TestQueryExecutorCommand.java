@@ -47,21 +47,12 @@ public class TestQueryExecutorCommand extends HystrixCommand<HealthCheck.Result>
   @Override
   protected HealthCheck.Result run() throws Exception {
     log.debug("Running the HealthCheck");
-    Connection con = null;
-    PreparedStatement pstmt;
-    try {
-      con = dataSource.getConnection();
-      con.setAutoCommit(false);
-      pstmt = con.prepareStatement(validationQuery);
+
+    try (Connection con = dataSource.getConnection();
+         PreparedStatement pstmt = con.prepareStatement(validationQuery)) {
       pstmt.executeQuery();
-
-      pstmt.close();
-
-    } finally {
-      if (con != null) con.close();
+      log.debug("DB is healthy");
     }
-
-    log.debug("DB is healthy");
     return healthy("DB-OK");
   }
 
