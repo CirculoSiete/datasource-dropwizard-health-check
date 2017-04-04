@@ -58,8 +58,9 @@ public class TestQueryExecutorCommand extends HystrixCommand<HealthCheck.Result>
 
   @Override
   protected HealthCheck.Result getFallback() {
-    log.debug("DB is unhealthy");
-    return ofNullable(getCause(getExecutionException()))
+    Throwable cause = getCause(getExecutionException());
+    log.error("DB is unhealthy", cause);
+    return ofNullable(cause)
       .map(HealthCheck.Result::unhealthy)
       .orElse(HealthCheck.Result.unhealthy("Fail"));
   }
