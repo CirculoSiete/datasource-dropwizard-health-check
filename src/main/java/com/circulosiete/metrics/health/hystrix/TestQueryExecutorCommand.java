@@ -35,11 +35,13 @@ import static org.apache.commons.lang.exception.ExceptionUtils.getCause;
 @Slf4j
 public class TestQueryExecutorCommand extends HystrixCommand<HealthCheck.Result> {
 
+  private final String dataSourceId;
   private final DataSource dataSource;
   private final String validationQuery;
 
-  public TestQueryExecutorCommand(DataSource dataSource, String validationQuery, String groupKey) {
+  public TestQueryExecutorCommand(String dataSourceId, DataSource dataSource, String validationQuery, String groupKey) {
     super(Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(groupKey)));
+    this.dataSourceId = dataSourceId;
     this.dataSource = dataSource;
     this.validationQuery = validationQuery;
   }
@@ -51,7 +53,7 @@ public class TestQueryExecutorCommand extends HystrixCommand<HealthCheck.Result>
     try (Connection con = dataSource.getConnection();
          PreparedStatement pstmt = con.prepareStatement(validationQuery)) {
       pstmt.executeQuery();
-      log.debug("DB is healthy");
+      log.debug(String.format("DB %s is healthy", dataSourceId));
     }
     return healthy("DB-OK");
   }
@@ -59,7 +61,8 @@ public class TestQueryExecutorCommand extends HystrixCommand<HealthCheck.Result>
   @Override
   protected HealthCheck.Result getFallback() {
     Throwable cause = getCause(getExecutionException());
-    log.error("DB is unhealthy", cause);
+    log.error(String.format("DB %s is unhealthy", dataSourceId), cause);
+
     return ofNullable(cause)
       .map(HealthCheck.Result::unhealthy)
       .orElse(HealthCheck.Result.unhealthy("Fail"));
