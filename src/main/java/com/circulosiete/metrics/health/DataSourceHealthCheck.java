@@ -30,9 +30,11 @@ import static java.util.Optional.ofNullable;
 public class DataSourceHealthCheck extends HealthCheck {
 
   private final String validationQuery;
+  private final String dataSourceId;
   private final DataSource dataSource;
 
-  public DataSourceHealthCheck(DataSource dataSource, String validationQuery) {
+  public DataSourceHealthCheck(String dataSourceId, DataSource dataSource, String validationQuery) {
+    this.dataSourceId = dataSourceId;
     this.dataSource = dataSource;
     this.validationQuery = validationQuery;
   }
@@ -47,6 +49,7 @@ public class DataSourceHealthCheck extends HealthCheck {
   private Result doDataSourceHealthCheck(DataSource dataSource) {
     return
       new TestQueryExecutorCommand(
+        dataSourceId,
         dataSource,
         validationQuery,
         "DataSourceHealthCheck")
