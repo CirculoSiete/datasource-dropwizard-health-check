@@ -42,11 +42,11 @@ public class DataSourceHealthCheck extends HealthCheck {
   @Override
   protected Result check() throws Exception {
     return ofNullable(dataSource)
-      .map(this::doDataSourceHealthCheck)
+      .map(dataSource -> doDataSourceHealthCheck())
       .orElse(healthy("database unknown"));
   }
 
-  private Result doDataSourceHealthCheck(DataSource dataSource) {
+  private Result doDataSourceHealthCheck() {
     return
       new TestQueryExecutorCommand(
         dataSourceId,
