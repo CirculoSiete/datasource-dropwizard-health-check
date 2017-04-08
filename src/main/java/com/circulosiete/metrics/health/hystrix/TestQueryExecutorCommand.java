@@ -50,18 +50,19 @@ public class TestQueryExecutorCommand extends HystrixCommand<HealthCheck.Result>
   protected HealthCheck.Result run() throws Exception {
     log.debug("Running the HealthCheck");
 
-    try (Connection con = dataSource.getConnection();
-         PreparedStatement pstmt = con.prepareStatement(validationQuery)) {
+    try (
+      Connection con = dataSource.getConnection();
+      PreparedStatement pstmt = con.prepareStatement(validationQuery)) {
       pstmt.executeQuery();
-      log.debug(String.format("DB %s is healthy", dataSourceId));
+      log.debug(String.format("DB '%s' is healthy", dataSourceId));
     }
-    return healthy("DB-OK");
+    return healthy(String.format("DB '%s' is OK", dataSourceId));
   }
 
   @Override
   protected HealthCheck.Result getFallback() {
     Throwable cause = getCause(getExecutionException());
-    log.error(String.format("DB %s is unhealthy", dataSourceId), cause);
+    log.error(String.format("DB '%s' is unhealthy", dataSourceId), cause);
 
     return ofNullable(cause)
       .map(HealthCheck.Result::unhealthy)
