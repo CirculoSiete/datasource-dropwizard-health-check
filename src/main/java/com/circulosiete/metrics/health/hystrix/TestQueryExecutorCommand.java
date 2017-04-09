@@ -39,6 +39,14 @@ public class TestQueryExecutorCommand extends HystrixCommand<HealthCheck.Result>
   private final DataSource dataSource;
   private final String validationQuery;
 
+  /**
+   * Create a new instance with the required values.
+   *
+   * @param dataSourceId The unique Id f the desired DataSource, useful for troubleshooting.
+   * @param dataSource The JDBC DataSource under test.
+   * @param validationQuery The query to perform to validate the DataSource Health.
+   * @param groupKey The groupKey for Hystrix.
+   */
   public TestQueryExecutorCommand(String dataSourceId, DataSource dataSource, String validationQuery, String groupKey) {
     super(Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(groupKey)));
     this.dataSourceId = dataSourceId;
