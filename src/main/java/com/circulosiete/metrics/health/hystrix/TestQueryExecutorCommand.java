@@ -30,7 +30,10 @@ import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.exception.ExceptionUtils.getCause;
 
 /**
- * Created by domix on 1/19/17.
+ * A Hystrix command to validate the health in a DataSource.
+ *
+ * @author Domingo Suarez Torres <domingo.suarez@gmail.com> (@domix)
+ * @since 1/19/2017
  */
 @Slf4j
 public class TestQueryExecutorCommand extends HystrixCommand<HealthCheck.Result> {
@@ -42,7 +45,7 @@ public class TestQueryExecutorCommand extends HystrixCommand<HealthCheck.Result>
   /**
    * Create a new instance with the required values.
    *
-   * @param dataSourceId The unique Id f the desired DataSource, useful for troubleshooting.
+   * @param dataSourceId The unique Id of the desired DataSource, useful for troubleshooting.
    * @param dataSource The JDBC DataSource under test.
    * @param validationQuery The query to perform to validate the DataSource Health.
    * @param groupKey The groupKey for Hystrix.
