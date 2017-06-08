@@ -19,6 +19,8 @@ package com.circulosiete.metrics.health.hystrix;
 import com.codahale.metrics.health.HealthCheck;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
+import com.netflix.hystrix.HystrixCommandKey;
+import com.netflix.hystrix.HystrixCommandProperties;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.sql.DataSource;
@@ -26,6 +28,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 
 import static com.codahale.metrics.health.HealthCheck.Result.healthy;
+import static com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy.SEMAPHORE;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.exception.ExceptionUtils.getCause;
 
@@ -41,20 +44,42 @@ public class TestQueryExecutorCommand extends HystrixCommand<HealthCheck.Result>
   private final String dataSourceId;
   private final DataSource dataSource;
   private final String validationQuery;
+  private final Integer timeout;
 
   /**
    * Create a new instance with the required values.
    *
-   * @param dataSourceId The unique Id of the desired DataSource, useful for troubleshooting.
-   * @param dataSource The JDBC DataSource under test.
-   * @param validationQuery The query to perform to validate the DataSource Health.
-   * @param groupKey The groupKey for Hystrix.
+   * @param dataSourceId
+   * @param dataSource
+   * @param validationQuery
+   * @param groupKey
    */
   public TestQueryExecutorCommand(String dataSourceId, DataSource dataSource, String validationQuery, String groupKey) {
-    super(Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(groupKey)));
+    this(dataSourceId, dataSource, validationQuery, groupKey, 300);
+  }
+
+  /**
+   * Create a new instance with the required values.
+   *
+   * @param dataSourceId    The unique Id of the desired DataSource, useful for troubleshooting.
+   * @param dataSource      The JDBC DataSource under test.
+   * @param validationQuery The query to perform to validate the DataSource Health.
+   * @param groupKey        The groupKey for Hystrix.
+   * @param timeout         Timeout to wait before blah blah
+   */
+  public TestQueryExecutorCommand(String dataSourceId, DataSource dataSource, String validationQuery, String groupKey, Integer timeout) {
+    super(Setter
+      .withGroupKey(HystrixCommandGroupKey.Factory.asKey(groupKey))
+      .andCommandKey(HystrixCommandKey.Factory.asKey("TestQueryExecutorCommand"))
+      .andCommandPropertiesDefaults(
+        HystrixCommandProperties.Setter()
+          .withExecutionIsolationStrategy(SEMAPHORE)
+          .withExecutionTimeoutInMilliseconds(timeout)));
+
     this.dataSourceId = dataSourceId;
     this.dataSource = dataSource;
     this.validationQuery = validationQuery;
+    this.timeout = timeout;
   }
 
   @Override
@@ -74,6 +99,10 @@ public class TestQueryExecutorCommand extends HystrixCommand<HealthCheck.Result>
   protected HealthCheck.Result getFallback() {
     Throwable cause = getCause(getExecutionException());
     log.error(String.format("DB '%s' is unhealthy", dataSourceId), cause);
+
+    if (isResponseTimedOut()) {
+      log.warn("Timeout detectado: {}, timeout configurado: {}", getExecutionTimeInMilliseconds(), timeout);
+    }
 
     return ofNullable(cause)
       .map(HealthCheck.Result::unhealthy)
