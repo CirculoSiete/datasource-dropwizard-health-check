@@ -65,21 +65,21 @@ public class TestQueryExecutorCommand extends HystrixCommand<HealthCheck.Result>
    * @param dataSource      The JDBC DataSource under test.
    * @param validationQuery The query to perform to validate the DataSource Health.
    * @param groupKey        The groupKey for Hystrix.
-   * @param timeout         Timeout to wait before blah blah
+   * @param timeoutInMilliseconds         Timeout to wait before blah blah
    */
-  public TestQueryExecutorCommand(String dataSourceId, DataSource dataSource, String validationQuery, String groupKey, Integer timeout) {
+  public TestQueryExecutorCommand(String dataSourceId, DataSource dataSource, String validationQuery, String groupKey, Integer timeoutInMilliseconds) {
     super(Setter
       .withGroupKey(HystrixCommandGroupKey.Factory.asKey(groupKey))
       .andCommandKey(HystrixCommandKey.Factory.asKey("TestQueryExecutorCommand"))
       .andCommandPropertiesDefaults(
         HystrixCommandProperties.Setter()
           .withExecutionIsolationStrategy(SEMAPHORE)
-          .withExecutionTimeoutInMilliseconds(timeout)));
+          .withExecutionTimeoutInMilliseconds(timeoutInMilliseconds)));
 
     this.dataSourceId = dataSourceId;
     this.dataSource = dataSource;
     this.validationQuery = validationQuery;
-    this.timeout = timeout;
+    this.timeout = timeoutInMilliseconds;
   }
 
   @Override
