@@ -21,7 +21,7 @@ buildscript {
   }
   dependencies {
     classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-    classpath 'com.github.ben-manes:gradle-versions-plugin:0.14.0'
+    classpath 'com.github.ben-manes:gradle-versions-plugin:0.15.0'
   }
 }
 
@@ -47,9 +47,9 @@ repositories {
 }
 
 dependencies {
-  compile 'io.dropwizard.metrics:metrics-healthchecks:3.1.2'
-  compile 'com.netflix.hystrix:hystrix-core:1.5.10'
-  compile 'org.projectlombok:lombok:1.16.16'
+  compile 'io.dropwizard.metrics:metrics-healthchecks:3.2.5'
+  compile 'com.netflix.hystrix:hystrix-core:1.5.13'
+  compile 'org.projectlombok:lombok:1.16.18'
 
   testCompile 'junit:junit:4.12'
 }
