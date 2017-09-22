@@ -25,10 +25,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 
 import static com.codahale.metrics.health.HealthCheck.Result.healthy;
 import static com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy.SEMAPHORE;
+import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.exception.ExceptionUtils.getCause;
 
@@ -43,7 +43,6 @@ public class TestQueryExecutorCommand extends HystrixCommand<HealthCheck.Result>
 
   private final String dataSourceId;
   private final DataSource dataSource;
-  private final String validationQuery;
   private final Integer timeout;
 
   /**
@@ -51,23 +50,21 @@ public class TestQueryExecutorCommand extends HystrixCommand<HealthCheck.Result>
    *
    * @param dataSourceId
    * @param dataSource
-   * @param validationQuery
    * @param groupKey
    */
-  public TestQueryExecutorCommand(String dataSourceId, DataSource dataSource, String validationQuery, String groupKey) {
-    this(dataSourceId, dataSource, validationQuery, groupKey, 300);
+  public TestQueryExecutorCommand(String dataSourceId, DataSource dataSource, String groupKey) {
+    this(dataSourceId, dataSource, groupKey, 300);
   }
 
   /**
    * Create a new instance with the required values.
    *
-   * @param dataSourceId    The unique Id of the desired DataSource, useful for troubleshooting.
-   * @param dataSource      The JDBC DataSource under test.
-   * @param validationQuery The query to perform to validate the DataSource Health.
-   * @param groupKey        The groupKey for Hystrix.
-   * @param timeoutInMilliseconds         Timeout to wait before blah blah
+   * @param dataSourceId          The unique Id of the desired DataSource, useful for troubleshooting.
+   * @param dataSource            The JDBC DataSource under test.
+   * @param groupKey              The groupKey for Hystrix.
+   * @param timeoutInMilliseconds Timeout to wait before blah blah
    */
-  public TestQueryExecutorCommand(String dataSourceId, DataSource dataSource, String validationQuery, String groupKey, Integer timeoutInMilliseconds) {
+  public TestQueryExecutorCommand(String dataSourceId, DataSource dataSource, String groupKey, Integer timeoutInMilliseconds) {
     super(Setter
       .withGroupKey(HystrixCommandGroupKey.Factory.asKey(groupKey))
       .andCommandKey(HystrixCommandKey.Factory.asKey("TestQueryExecutorCommand"))
@@ -78,7 +75,6 @@ public class TestQueryExecutorCommand extends HystrixCommand<HealthCheck.Result>
 
     this.dataSourceId = dataSourceId;
     this.dataSource = dataSource;
-    this.validationQuery = validationQuery;
     this.timeout = timeoutInMilliseconds;
   }
 
@@ -87,21 +83,30 @@ public class TestQueryExecutorCommand extends HystrixCommand<HealthCheck.Result>
     log.debug("Running the HealthCheck");
 
     try (
-      Connection con = dataSource.getConnection();
-      PreparedStatement pstmt = con.prepareStatement(validationQuery)) {
-      pstmt.executeQuery();
-      log.debug(String.format("DB '%s' is healthy", dataSourceId));
+      Connection con = dataSource.getConnection()) {
+      con.isValid(timeout);
+      log.debug(format("DB '%s' is healthy", dataSourceId));
     }
-    return healthy(String.format("DB '%s' is OK", dataSourceId));
+    return healthy(format("DB '%s' is OK", dataSourceId));
   }
 
   @Override
   protected HealthCheck.Result getFallback() {
     Throwable cause = getCause(getExecutionException());
-    log.error(String.format("DB '%s' is unhealthy", dataSourceId), cause);
+    log.error(format("DB '%s' is unhealthy", dataSourceId), cause);
 
     if (isResponseTimedOut()) {
       log.warn("Timeout detectado: {}, timeout configurado: {}", getExecutionTimeInMilliseconds(), timeout);
+    }
+
+    Throwable executionException = this.getExecutionException();
+    if (executionException != null) {
+      log.warn(format("EXECUTION_EXCEPTION: %s", executionException.getMessage()), executionException);
+    }
+
+    Throwable failedExecutionException = this.getFailedExecutionException();
+    if (failedExecutionException != null) {
+      log.warn(format("FAILED_EXECUTION_EXCEPTION: %s", failedExecutionException.getMessage()), failedExecutionException);
     }
 
     return ofNullable(cause)

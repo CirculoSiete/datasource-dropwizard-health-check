@@ -29,19 +29,17 @@ import static java.util.Optional.ofNullable;
  */
 public class DataSourceHealthCheck extends HealthCheck {
 
-  private final String validationQuery;
   private final Integer timeout;
   private final String dataSourceId;
   private final DataSource dataSource;
 
-  public DataSourceHealthCheck(String dataSourceId, DataSource dataSource, String validationQuery) {
-    this(dataSourceId, dataSource, validationQuery, 300);
+  public DataSourceHealthCheck(String dataSourceId, DataSource dataSource) {
+    this(dataSourceId, dataSource, 300);
   }
 
-  public DataSourceHealthCheck(String dataSourceId, DataSource dataSource, String validationQuery, Integer timeoutInMilliseconds) {
+  public DataSourceHealthCheck(String dataSourceId, DataSource dataSource, Integer timeoutInMilliseconds) {
     this.dataSourceId = dataSourceId;
     this.dataSource = dataSource;
-    this.validationQuery = validationQuery;
     this.timeout = timeoutInMilliseconds;
   }
 
@@ -57,7 +55,6 @@ public class DataSourceHealthCheck extends HealthCheck {
       new TestQueryExecutorCommand(
         dataSourceId,
         dataSource,
-        validationQuery,
         "DataSourceHealthCheck",
         timeout)
         .execute();
